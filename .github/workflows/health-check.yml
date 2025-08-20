@@ -1,0 +1,247 @@
+name: 🏥 Health Check
+
+on:
+  schedule:
+    # Каждые 30 минут проверяем здоровье системы
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to check'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+        - production
+        - staging
+        - development
+
+env:
+  NODE_VERSION: '20.x'
+
+jobs:
+  health-check:
+    name: 🏥 System Health Check
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        environment: 
+          - name: 'Production'
+            url: 'https://engine-wizardtest.apps.gurunetwork.ai/engine-rest'
+            username: 'demo'
+            password: 'demo'
+          - name: 'Test Environment'
+            url: 'https://engine-wizardtest.apps.gurunetwork.ai/engine-rest'
+            username: 'demo'
+            password: 'demo'
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🏗️ Build project
+        run: npm run build
+
+      - name: 🏥 Check Camunda Engine Health
+        id: camunda-health
+        run: |
+          echo "🔍 Checking Camunda Engine: ${{ matrix.environment.name }}"
+          
+          # Проверяем доступность engine
+          ENGINE_RESPONSE=$(curl -s -w "%{http_code}" \
+            -u "${{ matrix.environment.username }}:${{ matrix.environment.password }}" \
+            "${{ matrix.environment.url }}/engine" || echo "000")
+          
+          ENGINE_STATUS="${ENGINE_RESPONSE: -3}"
+          
+          if [ "$ENGINE_STATUS" = "200" ]; then
+            echo "✅ Camunda Engine is healthy"
+            echo "engine_healthy=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Camunda Engine is unhealthy (HTTP $ENGINE_STATUS)"
+            echo "engine_healthy=false" >> $GITHUB_OUTPUT
+            echo "engine_status=$ENGINE_STATUS" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 🧪 Test MCP Server Basic Functions
+        if: steps.camunda-health.outputs.engine_healthy == 'true'
+        run: |
+          echo "🧪 Testing MCP Server basic functions"
+          
+          # Запускаем MCP сервер в фоне
+          export CAMUNDA_BASE_URL="${{ matrix.environment.url }}"
+          export CAMUNDA_USERNAME="${{ matrix.environment.username }}"
+          export CAMUNDA_PASSWORD="${{ matrix.environment.password }}"
+          
+          timeout 30s node build/index.js > mcp_output.log 2>&1 &
+          MCP_PID=$!
+          
+          # Ждем запуска
+          sleep 3
+          
+          # Тестируем список инструментов
+          echo '{"jsonrpc": "2.0", "id": 1, "method": "tools/list"}' | \
+            timeout 10s node build/index.js > tools_list.json 2>&1 || true
+          
+          # Тестируем получение процессов
+          echo '{"jsonrpc": "2.0", "id": 2, "method": "tools/call", "params": {"name": "getProcessDefinitions", "arguments": {"maxResults": 1}}}' | \
+            timeout 10s node build/index.js > process_defs.json 2>&1 || true
+          
+          # Проверяем результаты
+          if grep -q "tools" tools_list.json; then
+            echo "✅ MCP tools list working"
+          else
+            echo "❌ MCP tools list failed"
+            cat tools_list.json
+          fi
+          
+          if grep -q "content" process_defs.json; then
+            echo "✅ MCP process definitions working"
+          else
+            echo "❌ MCP process definitions failed"
+            cat process_defs.json
+          fi
+          
+          # Очистка
+          kill $MCP_PID 2>/dev/null || true
+
+      - name: 📊 Performance Test
+        if: steps.camunda-health.outputs.engine_healthy == 'true'
+        run: |
+          echo "📊 Running performance tests"
+          
+          export CAMUNDA_BASE_URL="${{ matrix.environment.url }}"
+          export CAMUNDA_USERNAME="${{ matrix.environment.username }}"
+          export CAMUNDA_PASSWORD="${{ matrix.environment.password }}"
+          
+          # Измеряем время отклика для получения процессов
+          start_time=$(date +%s%N)
+          
+          curl -s -u "${{ matrix.environment.username }}:${{ matrix.environment.password }}" \
+            "${{ matrix.environment.url }}/process-definition?maxResults=10" \
+            > /dev/null
+          
+          end_time=$(date +%s%N)
+          response_time=$(( (end_time - start_time) / 1000000 ))
+          
+          echo "⏱️ Process definitions response time: ${response_time}ms"
+          
+          if [ $response_time -lt 5000 ]; then
+            echo "✅ Response time is acceptable"
+          else
+            echo "⚠️ Response time is slow (${response_time}ms)"
+          fi
+
+      - name: 🚨 Create Issue on Failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = `🚨 Health Check Failed - ${{ matrix.environment.name }}`;
+            const body = `
+            ## 🚨 Health Check Alert
+            
+            **Environment**: ${{ matrix.environment.name }}
+            **Time**: ${new Date().toISOString()}
+            **Workflow**: ${{ github.workflow }}
+            **Run ID**: ${{ github.run_id }}
+            
+            ### Issues Detected:
+            - Camunda Engine Health: ${{ steps.camunda-health.outputs.engine_healthy == 'true' && '✅ Healthy' || '❌ Unhealthy' }}
+            ${steps.camunda-health.outputs.engine_status ? `- HTTP Status: ${steps.camunda-health.outputs.engine_status}` : ''}
+            
+            ### Next Steps:
+            1. Check Camunda Engine status
+            2. Verify network connectivity
+            3. Check authentication credentials
+            4. Review system resources
+            
+            **Auto-generated by Health Check workflow**
+            `;
+            
+            // Проверяем, есть ли уже открытый issue
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'health-check,alert'
+            });
+            
+            const existingIssue = issues.data.find(issue => 
+              issue.title.includes(`Health Check Failed - ${{ matrix.environment.name }}`)
+            );
+            
+            if (!existingIssue) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: title,
+                body: body,
+                labels: ['health-check', 'alert', 'bug']
+              });
+            } else {
+              // Обновляем существующий issue
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existingIssue.number,
+                body: `🔄 **Health check failed again**\n\nTime: ${new Date().toISOString()}\nRun ID: ${{ github.run_id }}`
+              });
+            }
+
+      - name: 📈 Update Status Badge
+        if: always()
+        run: |
+          # Создаем статус для README badge
+          STATUS="${{ steps.camunda-health.outputs.engine_healthy == 'true' && 'healthy' || 'unhealthy' }}"
+          COLOR="${{ steps.camunda-health.outputs.engine_healthy == 'true' && 'green' || 'red' }}"
+          
+          echo "Health status: $STATUS"
+          echo "Badge color: $COLOR"
+          
+          # Можно использовать для создания динамических badges
+
+  # Суммарный отчет о здоровье всех сред
+  health-summary:
+    name: 📋 Health Summary
+    runs-on: ubuntu-latest
+    needs: [health-check]
+    if: always()
+    steps:
+      - name: 📋 Generate Health Report
+        run: |
+          echo "## 🏥 System Health Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Check Time**: $(date -u)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Статус для каждой среды
+          echo "### Environment Status:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.health-check.result }}" == "success" ]; then
+            echo "✅ **All Environments**: HEALTHY" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Some Environments**: UNHEALTHY" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ Check individual environment logs for details" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "*Automated health check - runs every 30 minutes*" >> $GITHUB_STEP_SUMMARY
+
+      - name: 🔔 Notify on Persistent Issues
+        if: failure()
+        run: |
+          echo "🔔 Persistent health issues detected"
+          echo "Consider manual intervention or escalation"

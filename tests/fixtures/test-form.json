@@ -1,0 +1,64 @@
+{
+  "components": [
+    {
+      "key": "customerName",
+      "label": "Customer Name",
+      "type": "textfield",
+      "validate": {
+        "required": true,
+        "minLength": 2,
+        "maxLength": 100
+      },
+      "defaultValue": ""
+    },
+    {
+      "key": "amount",
+      "label": "Amount",
+      "type": "number",
+      "validate": {
+        "required": true,
+        "min": 0,
+        "max": 1000000
+      },
+      "defaultValue": 0
+    },
+    {
+      "key": "priority",
+      "label": "Priority",
+      "type": "select",
+      "values": [
+        {"label": "Low", "value": "low"},
+        {"label": "Medium", "value": "medium"},
+        {"label": "High", "value": "high"}
+      ],
+      "defaultValue": "medium",
+      "validate": {
+        "required": true
+      }
+    },
+    {
+      "key": "description",
+      "label": "Description",
+      "type": "textarea",
+      "validate": {
+        "maxLength": 500
+      },
+      "defaultValue": ""
+    },
+    {
+      "key": "approved",
+      "label": "Approved",
+      "type": "checkbox",
+      "defaultValue": false
+    }
+  ],
+  "type": "default",
+  "id": "test-form",
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.19.0",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.0.0"
+  },
+  "schemaVersion": 9
+}

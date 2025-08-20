@@ -1,0 +1,9 @@
+node_modules/
+build/
+coverage/
+*.json
+*.md
+*.yml
+*.yaml
+Dockerfile
+.env*

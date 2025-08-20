@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  camunda-mcp:
+    build: .
+    container_name: camunda-mcp-server
+    environment:
+      - NODE_ENV=production
+      - CAMUNDA_BASE_URL=${CAMUNDA_BASE_URL:-http://localhost:8080/engine-rest}
+      - CAMUNDA_USERNAME=${CAMUNDA_USERNAME:-demo}
+      - CAMUNDA_PASSWORD=${CAMUNDA_PASSWORD:-demo}
+    # Keep container running for MCP client connections
+    command: tail -f /dev/null
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "process.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

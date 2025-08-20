@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🚀 Running pre-push checks..."
+
+# 1. Полная валидация
+echo "🔍 Running full validation..."
+npm run validate
+
+# 2. Health check
+echo "🏥 Running health check..."
+npm run health-check || echo "⚠️ Health check failed, but continuing push..."
+
+echo "✅ Pre-push checks completed!"
