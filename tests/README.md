@@ -1,138 +1,138 @@
 # 🧪 Test Documentation
 
-Данный документ описывает систему тестирования для Camunda MCP Server.
+This document describes the testing system for the Camunda MCP Server.
 
-## 📋 Структура тестов
+## 📋 Test Structure
 
 ```
 tests/
-├── unit/                 # Юнит-тесты
-│   ├── server.test.ts           # Основные тесты сервера
-│   └── tools-deployment.test.ts # Тесты инструментов развертывания
-├── integration/          # Интеграционные тесты
-│   └── camunda-api.test.ts      # Тесты с реальным Camunda API
-├── e2e/                  # End-to-end тесты
-│   └── complete-workflow.test.ts # Полные workflow тесты
-├── fixtures/             # Тестовые данные
-│   ├── test-process.bpmn        # BPMN процесс для тестов
-│   └── test-form.json          # Camunda Form для тестов
-├── utils/                # Утилиты для тестов
-│   └── test-helpers.ts         # Вспомогательные функции
-├── setup.ts              # Глобальная настройка тестов
-├── integration/setup.ts  # Настройка интеграционных тестов
-└── e2e/setup.ts          # Настройка E2E тестов
+├── unit/                 # Unit tests
+│   ├── server.test.ts           # Core server tests
+│   └── tools-deployment.test.ts # Deployment tools tests
+├── integration/          # Integration tests
+│   └── camunda-api.test.ts      # Tests with real Camunda API
+├── e2e/                  # End-to-end tests
+│   └── complete-workflow.test.ts # Complete workflow tests
+├── fixtures/             # Test data
+│   ├── test-process.bpmn        # BPMN process for tests
+│   └── test-form.json          # Camunda Form for tests
+├── utils/                # Test utilities
+│   └── test-helpers.ts         # Helper functions
+├── setup.ts              # Global test setup
+├── integration/setup.ts  # Integration test setup
+└── e2e/setup.ts          # E2E test setup
 ```
 
-## 🚀 Запуск тестов
+## 🚀 Running Tests
 
-### Все тесты
+### All tests
 ```bash
-npm test                 # Запустить все тесты
-npm run test:all         # Запустить все типы тестов последовательно
-npm run test:coverage    # Запустить с покрытием кода
+npm test                 # Run all tests
+npm run test:all         # Run all test types sequentially
+npm run test:coverage    # Run with code coverage
 ```
 
-### По типам
+### By type
 ```bash
-npm run test:unit        # Только юнит-тесты
-npm run test:integration # Только интеграционные тесты
-npm run test:e2e         # Только E2E тесты
+npm run test:unit        # Unit tests only
+npm run test:integration # Integration tests only
+npm run test:e2e         # E2E tests only
 ```
 
-### В режиме разработки
+### Development mode
 ```bash
-npm run test:watch       # Запуск в watch режиме
+npm run test:watch       # Run in watch mode
 ```
 
-## ⚙️ Конфигурация тестов
+## ⚙️ Test Configuration
 
-### Переменные окружения
+### Environment Variables
 ```bash
-# Camunda настройки
+# Camunda settings
 CAMUNDA_BASE_URL=http://localhost:8080/engine-rest
 CAMUNDA_USERNAME=demo
 CAMUNDA_PASSWORD=demo
 
-# Настройки тестов
+# Test settings
 NODE_ENV=test
 TEST_TIMEOUT=30000
 ```
 
-### Jest конфигурация
-- **Timeout**: 30 секунд для обычных тестов, 60 секунд для интеграционных, 120 секунд для E2E
-- **Coverage**: 80% порог для всех метрик
-- **Parallel execution**: До 50% CPU cores
-- **ESM support**: Полная поддержка ES модулей
+### Jest Configuration
+- **Timeout**: 30 seconds for regular tests, 60 seconds for integration, 120 seconds for E2E
+- **Coverage**: 80% threshold for all metrics
+- **Parallel execution**: Up to 50% CPU cores
+- **ESM support**: Full ES modules support
 
-## 📊 Типы тестов
+## 📊 Test Types
 
-### 1. 🧪 Юнит-тесты
-- **Цель**: Тестирование отдельных функций и компонентов
-- **Изоляция**: Полная изоляция с моками
-- **Скорость**: Быстрые (< 5 секунд)
-- **Покрытие**: Все 21 MCP инструмент
+### 1. 🧪 Unit Tests
+- **Purpose**: Testing individual functions and components
+- **Isolation**: Complete isolation with mocks
+- **Speed**: Fast (< 5 seconds)
+- **Coverage**: All 21 MCP tools
 
-**Что тестируется:**
-- Корректность вызовов API
-- Обработка ошибок
-- Валидация параметров
-- Форматирование ответов
+**What is tested:**
+- API call correctness
+- Error handling
+- Parameter validation
+- Response formatting
 
-### 2. 🔗 Интеграционные тесты
-- **Цель**: Тестирование взаимодействия с реальным Camunda
-- **Зависимости**: Требует доступного Camunda instance
-- **Скорость**: Средние (< 30 секунд)
-- **Очистка**: Автоматическая очистка тестовых данных
+### 2. 🔗 Integration Tests
+- **Purpose**: Testing interaction with real Camunda
+- **Dependencies**: Requires available Camunda instance
+- **Speed**: Medium (< 30 seconds)
+- **Cleanup**: Automatic test data cleanup
 
-**Что тестируется:**
-- Подключение к Camunda API
-- BPMN развертывание
-- Жизненный цикл процессов
-- Управление задачами
+**What is tested:**
+- Camunda API connection
+- BPMN deployment
+- Process lifecycle
+- Task management
 
-### 3. 🎯 End-to-End тесты
-- **Цель**: Тестирование полных workflow через MCP протокол
-- **Реализм**: Максимально приближено к реальному использованию
-- **Скорость**: Медленные (< 120 секунд)
-- **Комплексность**: Полные сценарии от развертывания до завершения
+### 3. 🎯 End-to-End Tests
+- **Purpose**: Testing complete workflows through MCP protocol
+- **Realism**: Maximum similarity to real usage
+- **Speed**: Slow (< 120 seconds)
+- **Complexity**: Complete scenarios from deployment to completion
 
-**Что тестируется:**
-- Полный MCP протокол
-- Все 21 инструмент в связке
-- Реальные BPMN процессы
-- Обработка форм
+**What is tested:**
+- Complete MCP protocol
+- All 21 tools working together
+- Real BPMN processes
+- Form handling
 
-## 🛠️ Утилиты тестирования
+## 🛠️ Testing Utilities
 
 ### Test Helpers
 ```typescript
-// Создание тестовых данных
+// Creating test data
 const processDef = createTestProcessDefinition();
 const processInstance = createTestProcessInstance();
 const task = createTestTask();
 
-// Загрузка фикстур
+// Loading fixtures
 const bpmn = loadTestBpmn();
 const form = loadTestForm();
 
-// Валидация ответов MCP
+// MCP response validation
 validateMCPResponse(response);
 const data = parseMCPResponse(response);
 
-// Ожидание условий
+// Waiting for conditions
 await waitForCondition(async () => {
-  // проверка условия
+  // condition check
   return true;
 });
 ```
 
 ### Mock Helpers
 ```typescript
-// Мок Axios ответов
+// Mock Axios responses
 const mockResponse = createMockAxiosResponse(data, 200);
 mockedAxios.get.mockResolvedValueOnce(mockResponse);
 
-// Проверка вызовов
+// Verify calls
 expect(mockedAxios.get).toHaveBeenCalledWith(
   'http://test-camunda:8080/engine-rest/process-definition',
   expect.objectContaining({
@@ -141,65 +141,65 @@ expect(mockedAxios.get).toHaveBeenCalledWith(
 );
 ```
 
-## 🔧 Настройка тестовой среды
+## 🔧 Test Environment Setup
 
-### Глобальные настройки (setup.ts)
-- Увеличение timeout для всех тестов
-- Настройка переменных окружения
-- Глобальные моки и утилиты
-- Подавление не критичных console.error
+### Global Settings (setup.ts)
+- Increase timeout for all tests
+- Environment variable setup
+- Global mocks and utilities
+- Suppress non-critical console.error
 
-### Интеграционные тесты (integration/setup.ts)
-- Проверка доступности Camunda
-- Утилиты для пропуска тестов при недоступности
-- Увеличенный timeout
+### Integration Tests (integration/setup.ts)
+- Check Camunda availability
+- Utilities for skipping tests when unavailable
+- Increased timeout
 
-### E2E тесты (e2e/setup.ts)
-- Строгая проверка доступности Camunda
-- Автоматическая очистка тестовых данных
-- Максимальный timeout
+### E2E Tests (e2e/setup.ts)
+- Strict Camunda availability check
+- Automatic test data cleanup
+- Maximum timeout
 
-## 📈 Покрытие кода
+## 📈 Code Coverage
 
-### Цели покрытия
+### Coverage Targets
 - **Branches**: 80%
 - **Functions**: 80%
 - **Lines**: 80%
 - **Statements**: 80%
 
-### Исключения
-- Файлы типов (*.d.ts)
-- Тестовые файлы (*.test.ts, *.spec.ts)
+### Exclusions
+- Type files (*.d.ts)
+- Test files (*.test.ts, *.spec.ts)
 
-### Отчеты
-- **Text**: Консольный вывод
-- **LCOV**: Для CI/CD интеграции
-- **HTML**: Детальный веб-отчет в `coverage/`
-- **JSON**: Машиночитаемый формат
+### Reports
+- **Text**: Console output
+- **LCOV**: For CI/CD integration
+- **HTML**: Detailed web report in `coverage/`
+- **JSON**: Machine-readable format
 
-## 🚨 Обработка ошибок в тестах
+## 🚨 Error Handling in Tests
 
-### Пропуск тестов
+### Skipping Tests
 ```typescript
-// Интеграционные тесты
+// Integration tests
 if (await skipIfCamundaUnavailable('Test Name')) {
   return;
 }
 
-// Условный пропуск
+// Conditional skip
 test.skipIf(condition)('test name', () => {
-  // тест
+  // test
 });
 ```
 
-### Ожидаемые ошибки
+### Expected Errors
 ```typescript
-// Тестирование ошибок
+// Testing errors
 expect(() => {
-  // код который должен упасть
+  // code that should fail
 }).toThrow('Expected error message');
 
-// Асинхронные ошибки
+// Async errors
 await expect(async () => {
   await someAsyncFunction();
 }).rejects.toThrow();
@@ -208,46 +208,46 @@ await expect(async () => {
 ## 🔄 Continuous Integration
 
 ### GitHub Actions
-- Автоматический запуск на push/PR
-- Параллельное выполнение разных типов тестов
-- Загрузка отчетов покрытия в Codecov
-- Уведомления о неудачных тестах
+- Automatic execution on push/PR
+- Parallel execution of different test types
+- Coverage report upload to Codecov
+- Failed test notifications
 
 ### Pre-commit hooks
-- Запуск юнит-тестов перед коммитом
-- Проверка форматирования и линтинг
+- Run unit tests before commit
+- Format checking and linting
 - Type checking
 
 ### Pre-push hooks
-- Полная валидация проекта
-- Health check системы
+- Full project validation
+- System health check
 
-## 📝 Написание тестов
+## 📝 Writing Tests
 
-### Именование
+### Naming
 ```typescript
 describe('MCP Server - Process Definitions', () => {
-  test('должен возвращать список процессов', async () => {
-    // тест
+  test('should return list of processes', async () => {
+    // test
   });
   
-  test('должен поддерживать фильтрацию', async () => {
-    // тест
+  test('should support filtering', async () => {
+    // test
   });
 });
 ```
 
-### Структура теста
+### Test Structure
 ```typescript
-test('описание теста', async () => {
-  // Arrange - подготовка данных
+test('test description', async () => {
+  // Arrange - prepare data
   const args = { maxResults: 10 };
   const expectedData = [createTestProcessDefinition()];
   
-  // Act - выполнение действия
+  // Act - execute action
   const response = await mockServer.callTool('getProcessDefinitions', args);
   
-  // Assert - проверка результатов
+  // Assert - verify results
   validateMCPResponse(response);
   const data = parseMCPResponse(response);
   expect(data).toEqual(expectedData);
@@ -255,43 +255,43 @@ test('описание теста', async () => {
 ```
 
 ### Best Practices
-1. **Изоляция**: Каждый тест должен быть независимым
-2. **Очистка**: Всегда очищайте созданные данные
-3. **Моки**: Используйте моки для внешних зависимостей в юнит-тестах
-4. **Timeout**: Устанавливайте разумные timeout'ы
-5. **Описание**: Четкие и понятные описания тестов
-6. **Группировка**: Логическая группировка тестов в describe блоки
+1. **Isolation**: Each test should be independent
+2. **Cleanup**: Always clean up created data
+3. **Mocks**: Use mocks for external dependencies in unit tests
+4. **Timeout**: Set reasonable timeouts
+5. **Description**: Clear and understandable test descriptions
+6. **Grouping**: Logical grouping of tests in describe blocks
 
-## 🐛 Отладка тестов
+## 🐛 Debugging Tests
 
-### Логирование
+### Logging
 ```typescript
-// В тестах можно использовать console.log
+// Use console.log in tests
 console.log('Debug info:', data);
 
-// Или специальные утилиты
+// Or special utilities
 console.error('CRITICAL: This will be shown');
 ```
 
-### Запуск отдельных тестов
+### Running Individual Tests
 ```bash
-# Один файл
+# Single file
 npm test -- server.test.ts
 
-# Один тест
-npm test -- --testNamePattern="должен возвращать список процессов"
+# Single test
+npm test -- --testNamePattern="should return list of processes"
 
-# С отладкой
+# With debugging
 npm test -- --verbose
 ```
 
-### Анализ покрытия
+### Coverage Analysis
 ```bash
 npm run test:coverage
-# Откройте coverage/lcov-report/index.html в браузере
+# Open coverage/lcov-report/index.html in browser
 ```
 
-## 📚 Дополнительные ресурсы
+## 📚 Additional Resources
 
 - [Jest Documentation](https://jestjs.io/docs/getting-started)
 - [Testing Library](https://testing-library.com/)
@@ -300,4 +300,4 @@ npm run test:coverage
 
 ---
 
-**💡 Совет**: Начинайте с юнит-тестов, затем переходите к интеграционным, и завершайте E2E тестами для максимальной эффективности разработки.
+**💡 Tip**: Start with unit tests, then move to integration tests, and finish with E2E tests for maximum development efficiency.

@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # 🛠️ Development Environment Setup Script
-# Настраивает окружение разработки для Camunda MCP Server
+# Sets up development environment for Camunda MCP Server
 
 set -e
 
-# Цвета для вывода
+# Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'

@@ -224,7 +224,7 @@ npm run build
 ### **Basic Tool Testing**
 ```bash
 # Set environment variables
-export CAMUNDA_BASE_URL="https://engine-wizardtest.apps.gurunetwork.ai/engine-rest"
+export CAMUNDA_BASE_URL="http://localhost:8080/engine-rest"
 export CAMUNDA_USERNAME="demo"
 export CAMUNDA_PASSWORD="demo"
 
@@ -251,7 +251,7 @@ docker build -t camunda-engine-mcp .
 
 # Run container for testing
 docker run -d --name camunda-mcp-test \
-  -e CAMUNDA_BASE_URL="https://engine-wizardtest.apps.gurunetwork.ai/engine-rest" \
+  -e CAMUNDA_BASE_URL="http://localhost:8080/engine-rest" \
   -e CAMUNDA_USERNAME="demo" \
   -e CAMUNDA_PASSWORD="demo" \
   camunda-engine-mcp tail -f /dev/null
@@ -274,7 +274,7 @@ Create a test script `test-all-tools.sh`:
 #!/bin/bash
 set -e
 
-export CAMUNDA_BASE_URL="https://engine-wizardtest.apps.gurunetwork.ai/engine-rest"
+export CAMUNDA_BASE_URL="http://localhost:8080/engine-rest"
 export CAMUNDA_USERNAME="demo"
 export CAMUNDA_PASSWORD="demo"
 
@@ -350,7 +350,7 @@ For each category, provide:
 ### **Connection Errors**
 ```bash
 # Test Camunda connectivity
-curl -u demo:demo https://engine-wizardtest.apps.gurunetwork.ai/engine-rest/engine
+curl -u demo:demo http://localhost:8080/engine-rest/engine
 
 # Check environment variables
 echo $CAMUNDA_BASE_URL

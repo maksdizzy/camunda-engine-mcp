@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # 🧪 Comprehensive Test Script for Camunda MCP Server
-# Тестирует все 21 инструмент MCP с реальным Camunda
+# Tests all 21 MCP tools with real Camunda
 
 set -e
 
-# Цвета для вывода
+# Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -14,7 +14,7 @@ PURPLE='\033[0;35m'
 CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
-# Конфигурация
+# Configuration
 CAMUNDA_BASE_URL="${CAMUNDA_BASE_URL:-http://localhost:8080/engine-rest}"
 CAMUNDA_USERNAME="${CAMUNDA_USERNAME:-demo}"
 CAMUNDA_PASSWORD="${CAMUNDA_PASSWORD:-demo}"

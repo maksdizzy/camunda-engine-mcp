@@ -122,7 +122,7 @@ docker build -t camunda-engine-mcp .
 # Run container
 docker run -d \
   --name camunda-mcp-server \
-  -e CAMUNDA_BASE_URL="https://engine-wizardtest.apps.gurunetwork.ai/engine-rest" \
+  -e CAMUNDA_BASE_URL="https://your-camunda-instance.com/engine-rest" \
   -e CAMUNDA_USERNAME="demo" \
   -e CAMUNDA_PASSWORD="demo" \
   camunda-engine-mcp
@@ -336,7 +336,7 @@ docker exec -i \
   camunda-mcp-server node build/health-check.js
 
 # Continuous monitoring
-watch -n 30 'docker-compose ps && echo "=== Health Check ===" && docker exec -i -e CAMUNDA_BASE_URL=https://engine-wizardtest.apps.gurunetwork.ai/engine-rest -e CAMUNDA_USERNAME=demo -e CAMUNDA_PASSWORD=demo camunda-mcp-server node build/health-check.js'
+watch -n 30 'docker-compose ps && echo "=== Health Check ===" && docker exec -i -e CAMUNDA_BASE_URL=https://your-camunda-instance.com/engine-rest -e CAMUNDA_USERNAME=demo -e CAMUNDA_PASSWORD=demo camunda-mcp-server node build/health-check.js'
 ```
 
 ### Current Test Status

@@ -4,7 +4,7 @@
       "command": "node",
       "args": ["build/index.js"],
       "camunda": {
-        "baseUrl": "https://engine-wizardtest.apps.gurunetwork.ai/engine-rest",
+        "baseUrl": "http://localhost:8080/engine-rest",
         "username": "demo", 
         "password": "demo"
       }

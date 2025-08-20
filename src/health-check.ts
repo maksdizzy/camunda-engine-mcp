@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Health Check утилита для Camunda MCP Server
+ * Health Check utility for Camunda MCP Server
  */
 
 import axios from 'axios';
@@ -67,22 +67,22 @@ class CamundaHealthChecker {
     };
 
     try {
-      // 1. Проверка доступности Camunda Engine
+      // 1. Check Camunda Engine availability
       await this.checkCamundaEngine(result);
 
-      // 2. Проверка версии Camunda
+      // 2. Check Camunda version
       await this.checkCamundaVersion(result);
 
-      // 3. Проверка основных API endpoints
+      // 3. Check main API endpoints
       await this.checkProcessDefinitions(result);
       await this.checkProcessInstances(result);
       await this.checkTasks(result);
       await this.checkDeployments(result);
 
-      // 4. Проверка производительности
+      // 4. Performance check
       await this.checkPerformance(result);
 
-      // 5. Проверка ресурсов системы
+      // 5. System resources check
       this.checkSystemResources(result);
 
     } catch (error) {
@@ -92,7 +92,7 @@ class CamundaHealthChecker {
       };
     }
 
-    // Определяем общий статус
+    // Determine overall status
     const endTime = performance.now();
     result.responseTime = Math.round(endTime - startTime);
     result.status = this.determineOverallStatus(result);
@@ -255,7 +255,7 @@ class CamundaHealthChecker {
     const startTime = performance.now();
     
     try {
-      // Тестируем производительность с несколькими запросами
+      // Test performance with multiple requests
       const promises = [
         axios.get(`${this.config.baseUrl}/process-definition`, { ...this.authConfig, params: { maxResults: 5 } }),
         axios.get(`${this.config.baseUrl}/process-instance`, { ...this.authConfig, params: { maxResults: 5 } }),
@@ -299,7 +299,7 @@ class CamundaHealthChecker {
       const memoryUsage = process.memoryUsage();
       const memoryUsageMB = Math.round(memoryUsage.rss / 1024 / 1024);
       
-      // Проверяем использование памяти (предупреждение при >100MB, ошибка при >500MB)
+      // Check memory usage (warning at >100MB, error at >500MB)
       if (memoryUsageMB < 100) {
         result.checks['memory'] = {
           status: 'pass',
@@ -320,7 +320,7 @@ class CamundaHealthChecker {
         };
       }
 
-      // Проверяем время работы
+      // Check uptime
       const uptime = process.uptime();
       result.checks['uptime'] = {
         status: 'pass',
@@ -342,7 +342,7 @@ class CamundaHealthChecker {
     const warnChecks = checks.filter(check => check.status === 'warn');
 
     if (failedChecks.length > 0) {
-      // Если есть критические ошибки (engine, process-definitions), то unhealthy
+      // If there are critical errors (engine, process-definitions), then unhealthy
       const criticalFailures = failedChecks.filter(check => 
         result.checks['camunda-engine'] === check || 
         result.checks['process-definitions'] === check
@@ -363,7 +363,7 @@ class CamundaHealthChecker {
   }
 }
 
-// CLI интерфейс
+// CLI interface
 async function main() {
   const config: HealthCheckConfig = {
     baseUrl: process.env.CAMUNDA_BASE_URL || 'http://localhost:8080/engine-rest',
@@ -379,12 +379,12 @@ async function main() {
   try {
     const result = await checker.performHealthCheck();
     
-    // Выводим результат
+    // Output results
     console.log(`📊 Health Check Results (${result.timestamp})`);
     console.log(`⏱️  Total Response Time: ${result.responseTime}ms`);
     console.log(`🎯 Overall Status: ${getStatusEmoji(result.status)} ${result.status.toUpperCase()}\n`);
 
-    // Детальные результаты
+    // Detailed results
     console.log('📋 Detailed Checks:');
     for (const [name, check] of Object.entries(result.checks)) {
       const emoji = getStatusEmoji(check.status === 'pass' ? 'healthy' : check.status === 'warn' ? 'degraded' : 'unhealthy');
@@ -399,13 +399,13 @@ async function main() {
     console.log(`  🌍 Environment: ${result.overall.environment}`);
     console.log(`  ⏰ Uptime: ${Math.round(result.overall.uptime)}s`);
 
-    // JSON вывод для CI/CD
+    // JSON output for CI/CD
     if (process.env.OUTPUT_FORMAT === 'json') {
       console.log('\n--- JSON OUTPUT ---');
       console.log(JSON.stringify(result, null, 2));
     }
 
-    // Exit code для CI/CD
+    // Exit code for CI/CD
     process.exit(result.status === 'healthy' ? 0 : result.status === 'degraded' ? 1 : 2);
 
   } catch (error) {
@@ -430,7 +430,7 @@ function getStatusEmoji(status: string): string {
   }
 }
 
-// Запускаем если это основной модуль (ES module compatible)
+// Run if this is the main module (ES module compatible)
 if (import.meta.url === `file://${process.argv[1]}`) {
   main().catch(error => {
     console.error('Fatal error:', error);

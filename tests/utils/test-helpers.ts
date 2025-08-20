@@ -1,5 +1,5 @@
 /**
- * Утилиты для тестирования MCP сервера Camunda
+ * Utilities for testing Camunda MCP server
  */
 
 import { readFileSync } from 'fs';
@@ -7,7 +7,7 @@ import { join } from 'path';
 import axios from 'axios';
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 
-// Типы для тестирования
+// Testing types
 export interface TestConfig {
   baseUrl: string;
   username?: string;
@@ -22,7 +22,7 @@ export interface MockAxiosResponse {
   config: any;
 }
 
-// Константы для тестирования
+// Testing constants
 export const TEST_CONFIG: TestConfig = {
   baseUrl: process.env.CAMUNDA_BASE_URL || 'http://localhost:8080/engine-rest',
   username: process.env.CAMUNDA_USERNAME || 'demo',
@@ -35,7 +35,7 @@ export const TEST_TIMEOUT = {
   E2E: 120000
 };
 
-// Загрузка тестовых файлов
+// Load test files
 export const loadTestBpmn = (filename: string = 'test-process.bpmn'): string => {
   const filePath = join(__dirname, '..', 'fixtures', filename);
   return readFileSync(filePath, 'utf-8');
@@ -46,7 +46,7 @@ export const loadTestForm = (filename: string = 'test-form.json'): string => {
   return readFileSync(filePath, 'utf-8');
 };
 
-// Создание мок-ответов
+// Create mock responses
 export const createMockAxiosResponse = (data: any, status: number = 200): MockAxiosResponse => ({
   data,
   status,
@@ -55,7 +55,7 @@ export const createMockAxiosResponse = (data: any, status: number = 200): MockAx
   config: {}
 });
 
-// Создание тестовых данных
+// Create test data
 export const createTestProcessDefinition = (overrides: Partial<any> = {}) => ({
   id: 'test-process-definition-id',
   key: 'test-process',
@@ -117,7 +117,7 @@ export const createTestDeployment = (overrides: Partial<any> = {}) => ({
   ...overrides
 });
 
-// Валидация ответов MCP
+// MCP response validation
 export const validateMCPResponse = (response: CallToolResult): void => {
   expect(response).toBeDefined();
   expect(response.content).toBeDefined();
@@ -142,7 +142,7 @@ export const parseMCPResponse = (response: CallToolResult): any => {
   return JSON.parse(content.text);
 };
 
-// Утилиты для интеграционных тестов
+// Integration test utilities
 export const waitForCondition = async (
   condition: () => Promise<boolean>,
   timeout: number = 10000,
@@ -175,7 +175,7 @@ export const cleanupCamundaData = async (deploymentIds: string[]): Promise<void>
   }
 };
 
-// Генерация уникальных идентификаторов для тестов
+// Generate unique test identifiers
 export const generateTestId = (prefix: string = 'test'): string => {
   const timestamp = Date.now();
   const random = Math.random().toString(36).substring(7);
@@ -186,7 +186,7 @@ export const generateTestName = (prefix: string = 'Test'): string => {
   return `${prefix} ${Date.now()}`;
 };
 
-// Проверка доступности Camunda
+// Check Camunda availability
 export const checkCamundaAvailability = async (): Promise<boolean> => {
   const { baseUrl, username, password } = TEST_CONFIG;
   
@@ -201,7 +201,7 @@ export const checkCamundaAvailability = async (): Promise<boolean> => {
   }
 };
 
-// Создание тестового процесса в Camunda
+// Create test process in Camunda
 export const deployTestProcess = async (processName?: string): Promise<string> => {
   const { baseUrl, username, password } = TEST_CONFIG;
   const deploymentName = processName || generateTestName('Test Process');
@@ -223,5 +223,5 @@ export const deployTestProcess = async (processName?: string): Promise<string> =
   return response.data.id;
 };
 
-// Экспорт всех утилит
+// Export all utilities
 export * from './test-helpers';

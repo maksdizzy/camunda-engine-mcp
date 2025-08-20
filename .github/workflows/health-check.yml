@@ -27,11 +27,11 @@ jobs:
       matrix:
         environment: 
           - name: 'Production'
-            url: 'https://engine-wizardtest.apps.gurunetwork.ai/engine-rest'
+            url: 'http://localhost:8080/engine-rest'
             username: 'demo'
             password: 'demo'
           - name: 'Test Environment'
-            url: 'https://engine-wizardtest.apps.gurunetwork.ai/engine-rest'
+            url: 'http://localhost:8080/engine-rest'
             username: 'demo'
             password: 'demo'
     

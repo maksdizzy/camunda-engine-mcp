@@ -11,7 +11,7 @@ on:
 
 env:
   NODE_VERSION: '20.x'
-  CAMUNDA_BASE_URL: 'https://engine-wizardtest.apps.gurunetwork.ai/engine-rest'
+  CAMUNDA_BASE_URL: 'http://localhost:8080/engine-rest'
   CAMUNDA_USERNAME: 'demo'
   CAMUNDA_PASSWORD: 'demo'
 
