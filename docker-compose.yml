@@ -9,6 +9,11 @@ services:
       - CAMUNDA_BASE_URL=${CAMUNDA_BASE_URL:-http://localhost:8080/engine-rest}
       - CAMUNDA_USERNAME=${CAMUNDA_USERNAME:-demo}
       - CAMUNDA_PASSWORD=${CAMUNDA_PASSWORD:-demo}
+    # Mount volumes for BPMN and form files
+    volumes:
+      - ./bpmn-files:/workspace:ro              # Read-only BPMN files
+      - ./forms:/workspace/forms:ro             # Read-only form files  
+      - /tmp/camunda-uploads:/uploads           # Temporary uploads
     # Keep container running for MCP client connections
     command: tail -f /dev/null
     restart: unless-stopped

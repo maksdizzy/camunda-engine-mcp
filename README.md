@@ -242,6 +242,14 @@ Start a new process instance for "Daily Streak Challenge"
 Deploy a simple BPMN process to Camunda
 ```
 
+```
+Deploy BPMN from file /workspace/simple-process.bpmn
+```
+
+```
+Deploy form from file /workspace/forms/test-form.form
+```
+
 ### Step 5: Verify Connection
 
 Look for the MCP tools indicator 🔧 in Claude Desktop. You should see 21 Camunda tools available.
@@ -252,6 +260,52 @@ Look for the MCP tools indicator 🔧 in Claude Desktop. You should see 21 Camun
 - Deployment Management (4 tools): deployBpmn, getDeployments, deleteDeployment, etc.
 - Forms Management (4 tools): deployForm, getStartForm, submitStartForm, etc.
 - Process Monitoring (4 tools): getProcessVariables, setProcessVariables, etc.
+
+## 📁 Large File Support
+
+### **File-based Deployment**
+For large BPMN files (>1MB), use the file-based approach instead of passing content directly:
+
+```bash
+# Place files in mounted directories
+./bpmn-files/
+  ├── large-process.bpmn     # Your big BPMN files
+  └── complex-workflow.bpmn
+
+./forms/
+  ├── user-registration.form
+  └── approval-form.form
+```
+
+### **Usage Examples**
+```typescript
+// Small files - pass content directly
+deployBpmn({
+  deploymentName: "Simple Process",
+  bpmnContent: "<?xml version='1.0'>...",
+  fileName: "simple.bpmn"
+});
+
+// Large files - pass file path (MCP will ask for permission)
+deployBpmn({
+  deploymentName: "Complex Process", 
+  bpmnContent: "/workspace/large-process.bpmn"  // File path instead of content
+});
+
+// Forms work the same way
+deployForm({
+  deploymentName: "User Form",
+  formContent: "/workspace/forms/user-form.form"  // File path
+});
+```
+
+### **Docker Volume Setup**
+```yaml
+# docker-compose.yml
+volumes:
+  - ./bpmn-files:/workspace:ro      # Your BPMN files
+  - ./forms:/workspace/forms:ro     # Your form files
+```
 
 ## ⚙️ Configuration
 

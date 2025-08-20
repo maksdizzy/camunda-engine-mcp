@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 2,
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.0.0"
+  },
+  "components": [
+    {
+      "text": "# Test Form",
+      "type": "text",
+      "id": "Field_1"
+    },
+    {
+      "label": "User Name",
+      "type": "textfield",
+      "id": "Field_userName",
+      "key": "userName",
+      "validate": {
+        "required": true
+      }
+    },
+    {
+      "label": "Email",
+      "type": "textfield",
+      "id": "Field_email", 
+      "key": "email",
+      "validate": {
+        "required": true,
+        "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+      }
+    },
+    {
+      "label": "Age",
+      "type": "number",
+      "id": "Field_age",
+      "key": "age",
+      "validate": {
+        "min": 18,
+        "max": 100
+      }
+    },
+    {
+      "label": "Comments",
+      "type": "textarea",
+      "id": "Field_comments",
+      "key": "comments"
+    }
+  ],
+  "type": "default",
+  "id": "test-form",
+  "executionPlatform": "Camunda Platform",
+  "executionPlatformVersion": "7.19.0"
+}

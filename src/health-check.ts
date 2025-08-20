@@ -54,7 +54,7 @@ class CamundaHealthChecker {
   async performHealthCheck(): Promise<HealthCheckResult> {
     const startTime = performance.now();
     const timestamp = new Date().toISOString();
-    
+
     const result: HealthCheckResult = {
       status: 'healthy',
       timestamp,
@@ -84,7 +84,6 @@ class CamundaHealthChecker {
 
       // 5. System resources check
       this.checkSystemResources(result);
-
     } catch (error) {
       result.checks['general'] = {
         status: 'fail',
@@ -102,7 +101,7 @@ class CamundaHealthChecker {
 
   private async checkCamundaEngine(result: HealthCheckResult): Promise<void> {
     const startTime = performance.now();
-    
+
     try {
       const response = await axios.get(`${this.config.baseUrl}/engine`, {
         ...this.authConfig,
@@ -159,7 +158,7 @@ class CamundaHealthChecker {
 
   private async checkProcessDefinitions(result: HealthCheckResult): Promise<void> {
     const startTime = performance.now();
-    
+
     try {
       const response = await axios.get(`${this.config.baseUrl}/process-definition`, {
         ...this.authConfig,
@@ -253,17 +252,23 @@ class CamundaHealthChecker {
 
   private async checkPerformance(result: HealthCheckResult): Promise<void> {
     const startTime = performance.now();
-    
+
     try {
       // Test performance with multiple requests
       const promises = [
-        axios.get(`${this.config.baseUrl}/process-definition`, { ...this.authConfig, params: { maxResults: 5 } }),
-        axios.get(`${this.config.baseUrl}/process-instance`, { ...this.authConfig, params: { maxResults: 5 } }),
+        axios.get(`${this.config.baseUrl}/process-definition`, {
+          ...this.authConfig,
+          params: { maxResults: 5 }
+        }),
+        axios.get(`${this.config.baseUrl}/process-instance`, {
+          ...this.authConfig,
+          params: { maxResults: 5 }
+        }),
         axios.get(`${this.config.baseUrl}/task`, { ...this.authConfig, params: { maxResults: 5 } })
       ];
 
       await Promise.all(promises);
-      
+
       const endTime = performance.now();
       const responseTime = Math.round(endTime - startTime);
 
@@ -298,7 +303,7 @@ class CamundaHealthChecker {
     try {
       const memoryUsage = process.memoryUsage();
       const memoryUsageMB = Math.round(memoryUsage.rss / 1024 / 1024);
-      
+
       // Check memory usage (warning at >100MB, error at >500MB)
       if (memoryUsageMB < 100) {
         result.checks['memory'] = {
@@ -327,7 +332,6 @@ class CamundaHealthChecker {
         message: `Process uptime: ${Math.round(uptime)}s`,
         details: { uptime }
       };
-
     } catch (error) {
       result.checks['system'] = {
         status: 'warn',
@@ -343,15 +347,16 @@ class CamundaHealthChecker {
 
     if (failedChecks.length > 0) {
       // If there are critical errors (engine, process-definitions), then unhealthy
-      const criticalFailures = failedChecks.filter(check => 
-        result.checks['camunda-engine'] === check || 
-        result.checks['process-definitions'] === check
+      const criticalFailures = failedChecks.filter(
+        check =>
+          result.checks['camunda-engine'] === check ||
+          result.checks['process-definitions'] === check
       );
-      
+
       if (criticalFailures.length > 0) {
         return 'unhealthy';
       }
-      
+
       return 'degraded';
     }
 
@@ -375,26 +380,30 @@ async function main() {
   console.log('🏥 Starting Camunda MCP Server Health Check...\n');
 
   const checker = new CamundaHealthChecker(config);
-  
+
   try {
     const result = await checker.performHealthCheck();
-    
+
     // Output results
     console.log(`📊 Health Check Results (${result.timestamp})`);
     console.log(`⏱️  Total Response Time: ${result.responseTime}ms`);
-    console.log(`🎯 Overall Status: ${getStatusEmoji(result.status)} ${result.status.toUpperCase()}\n`);
+    console.log(
+      `🎯 Overall Status: ${getStatusEmoji(result.status)} ${result.status.toUpperCase()}\n`
+    );
 
     // Detailed results
     console.log('📋 Detailed Checks:');
     for (const [name, check] of Object.entries(result.checks)) {
-      const emoji = getStatusEmoji(check.status === 'pass' ? 'healthy' : check.status === 'warn' ? 'degraded' : 'unhealthy');
+      const emoji = getStatusEmoji(
+        check.status === 'pass' ? 'healthy' : check.status === 'warn' ? 'degraded' : 'unhealthy'
+      );
       console.log(`  ${emoji} ${name}: ${check.message}`);
       if (check.responseTime) {
         console.log(`    ⏱️  Response Time: ${check.responseTime}ms`);
       }
     }
 
-    console.log(`\n🔧 System Info:`);
+    console.log('\n🔧 System Info:');
     console.log(`  📦 Version: ${result.overall.version || 'Unknown'}`);
     console.log(`  🌍 Environment: ${result.overall.environment}`);
     console.log(`  ⏰ Uptime: ${Math.round(result.overall.uptime)}s`);
@@ -407,9 +416,11 @@ async function main() {
 
     // Exit code for CI/CD
     process.exit(result.status === 'healthy' ? 0 : result.status === 'degraded' ? 1 : 2);
-
   } catch (error) {
-    console.error('❌ Health check failed:', error instanceof Error ? error.message : String(error));
+    console.error(
+      '❌ Health check failed:',
+      error instanceof Error ? error.message : String(error)
+    );
     process.exit(3);
   }
 }
