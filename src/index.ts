@@ -730,7 +730,11 @@ server.setRequestHandler(CallToolRequestSchema, async request => {
         let fileName: string;
 
         // Check if bpmnContent is a file path or actual content
+        console.error(`🔍 Checking if content is file path: ${args.bpmnContent}`);
+        console.error(`🔍 isFilePath result: ${isFilePath(args.bpmnContent as string)}`);
+        
         if (isFilePath(args.bpmnContent as string)) {
+          console.error(`📁 Attempting to read file: ${args.bpmnContent}`);
           try {
             const fileData = await readBpmnFile(args.bpmnContent as string);
             bpmnContent = fileData.content;
@@ -739,7 +743,9 @@ server.setRequestHandler(CallToolRequestSchema, async request => {
             console.error(
               `📁 Successfully read BPMN file: ${args.bpmnContent} (${Math.round(bpmnContent.length / 1024)}KB)`
             );
+            console.error(`📁 File name: ${fileName}`);
           } catch (error) {
+            console.error(`❌ Error reading file: ${error}`);
             return {
               isError: true,
               content: [
@@ -752,6 +758,7 @@ server.setRequestHandler(CallToolRequestSchema, async request => {
           }
         } else {
           // Use provided content directly
+          console.error(`📝 Using direct content, length: ${(args.bpmnContent as string).length}`);
           bpmnContent = args.bpmnContent as string;
           fileName = args.fileName as string;
         }

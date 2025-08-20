@@ -243,7 +243,7 @@ Deploy a simple BPMN process to Camunda
 ```
 
 ```
-Deploy BPMN from file /workspace/simple-process.bpmn
+Deploy BPMN from file /workspace/bpmn/simple-process.bpmn
 ```
 
 ```
@@ -289,7 +289,7 @@ deployBpmn({
 // Large files - pass file path (MCP will ask for permission)
 deployBpmn({
   deploymentName: "Complex Process", 
-  bpmnContent: "/workspace/large-process.bpmn"  // File path instead of content
+  bpmnContent: "/workspace/bpmn/large-process.bpmn"  // File path instead of content
 });
 
 // Forms work the same way
@@ -303,8 +303,8 @@ deployForm({
 ```yaml
 # docker-compose.yml
 volumes:
-  - ./bpmn-files:/workspace:ro      # Your BPMN files
-  - ./forms:/workspace/forms:ro     # Your form files
+  - ./bpmn-files:/workspace/bpmn:ro      # Your BPMN files
+  - ./forms:/workspace/forms:ro          # Your form files
 ```
 
 ## ⚙️ Configuration
